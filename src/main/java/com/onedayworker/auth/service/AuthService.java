@@ -15,6 +15,7 @@ import com.onedayworker.auth.util.ValidationUtil;
 import com.onedayworker.auth.exception.UnauthorizedException;
 import com.onedayworker.auth.util.enums.AccountStatus;
 import com.onedayworker.auth.util.enums.OtpType;
+import com.onedayworker.auth.util.enums.RoleType;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,8 @@ public class AuthService {
     private final IdentityRepository identityRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final OtpRepository otpRepository;
+    private final IdentityRoleService identityRoleService;
+
 
     private final Map<String, UUID> accessTokenStore = new ConcurrentHashMap<>();
 
@@ -54,8 +57,11 @@ public class AuthService {
                 .phoneVerified(false)
                 .failedLoginAttempts(0)
                 .build();
-
         identity = identityRepository.save(identity);
+        identityRoleService.assignRole(
+                identity.getId(),
+                request.role()
+        );
         return issueTokens(identity);
     }
 
@@ -184,6 +190,7 @@ public class AuthService {
         refreshTokenRepository.save(refreshToken);
         return new AuthDtos.AuthResponse(accessToken, refreshTokenValue, IdentityMapper.toDto(identity));
     }
+
 
     private Identity resolveIdentity(String emailOrPhone) {
         if (ValidationUtil.isBlank(emailOrPhone)) {

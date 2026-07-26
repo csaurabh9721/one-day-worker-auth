@@ -10,14 +10,9 @@ import com.onedayworker.auth.repository.OtpRepository;
 import com.onedayworker.auth.util.DateTimeUtil;
 import com.onedayworker.auth.util.ValidationUtil;
 import com.onedayworker.auth.util.enums.OtpType;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
