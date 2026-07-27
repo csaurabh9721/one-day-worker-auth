@@ -1,9 +1,11 @@
 package com.onedayworker.auth.service;
 
 import com.onedayworker.auth.dto.*;
+import com.onedayworker.auth.entity.DeviceSession;
 import com.onedayworker.auth.entity.Identity;
 import com.onedayworker.auth.entity.Otp;
 import com.onedayworker.auth.entity.RefreshToken;
+import com.onedayworker.auth.exception.UnauthorizedException;
 import com.onedayworker.auth.mapper.IdentityMapper;
 import com.onedayworker.auth.repository.IdentityRepository;
 import com.onedayworker.auth.repository.OtpRepository;
@@ -11,19 +13,18 @@ import com.onedayworker.auth.repository.RefreshTokenRepository;
 import com.onedayworker.auth.util.DateTimeUtil;
 import com.onedayworker.auth.util.PasswordUtil;
 import com.onedayworker.auth.util.ValidationUtil;
-import com.onedayworker.auth.exception.UnauthorizedException;
 import com.onedayworker.auth.util.enums.AccountStatus;
 import com.onedayworker.auth.util.enums.OtpType;
 import com.onedayworker.auth.util.enums.RoleType;
+import com.onedayworker.auth.util.security.JwtUtil;
+import com.onedayworker.auth.util.security.SecurityUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -34,9 +35,9 @@ public class AuthService {
     private final OtpRepository otpRepository;
     private final IdentityRoleService identityRoleService;
     private final CustomerFeignClient customerFeignClient;
+    private final JwtUtil jwtUtil;
+    private final DeviceSessionService deviceSessionService;
 
-
-    private final Map<String, UUID> accessTokenStore = new ConcurrentHashMap<>();
 
     @Transactional
     public RegisterResponse register(RegisterRequestDto request, RoleType roleType) {
@@ -72,19 +73,13 @@ public class AuthService {
                 .dob(request.getDob())
                 .build();
         CustomerRegistrationResponseDto customerRegistrationResponseDto = customerFeignClient.createCustomer(customerRegistrationRequest);
-        return RegisterResponse.builder()
-                .uuid(identity.getId())
-                .name(customerRegistrationResponseDto.getFirstName() + " " + customerRegistrationResponseDto.getLastName())
-                .email(identity.getEmail())
-                .phone(identity.getPhone())
-                .role(roleType.name())
-                .status(identity.getStatus().name())
-                .message("User registered successfully")
-                .build();
+
+
+        return issueTokensAndReturn(identity,roleType.name(),customerRegistrationResponseDto.getFirstName() + " " + customerRegistrationResponseDto.getLastName(), "User registered successfully");
     }
 
     @Transactional
-    public AuthDtos.AuthResponse login(AuthDtos.LoginRequest request) {
+    public  RegisterResponse login(AuthDtos.LoginRequest request) {
         Identity identity = resolveIdentity(request.emailOrPhone());
         if (!PasswordUtil.matches(request.password(), identity.getPassword())) {
             throw new UnauthorizedException("Invalid credentials");
@@ -92,11 +87,11 @@ public class AuthService {
         if (identity.getStatus() == AccountStatus.BLOCKED || identity.getStatus() == AccountStatus.DELETED) {
             throw new UnauthorizedException("Account is not active");
         }
-        return issueTokens(identity);
+        return issueTokensAndReturn(identity, "-----", "----", "User logged in successfully");
     }
 
     @Transactional
-    public AuthDtos.AuthResponse refresh(AuthDtos.RefreshRequest request) {
+    public  RegisterResponse refresh(AuthDtos.RefreshRequest request) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(request.refreshToken())
                 .orElseThrow(() -> new UnauthorizedException("Invalid refresh token"));
 
@@ -111,7 +106,7 @@ public class AuthService {
         refreshTokenRepository.save(refreshToken);
 
         Identity identity = refreshToken.getIdentity();
-        return issueTokens(identity);
+        return issueTokensAndReturn(identity, "CUSTOMER", "----","Refresh token used successfully");
     }
 
     @Transactional
@@ -130,7 +125,6 @@ public class AuthService {
             token.setRevoked(true);
             refreshTokenRepository.save(token);
         }
-        accessTokenStore.entrySet().removeIf(entry -> entry.getValue().equals(identity.getId()));
     }
 
     @Transactional
@@ -147,7 +141,6 @@ public class AuthService {
             token.setRevoked(true);
             refreshTokenRepository.save(token);
         }
-        accessTokenStore.entrySet().removeIf(entry -> entry.getValue().equals(identity.getId()));
     }
 
     @Transactional
@@ -186,27 +179,13 @@ public class AuthService {
 
     public IdentityDto me(HttpServletRequest request, String authorizationHeader) {
         String accessToken = extractAccessToken(request, authorizationHeader);
-        UUID identityId = accessTokenStore.get(accessToken);
+        UUID identityId = SecurityUtil.getCurrentUserId();
         if (identityId == null) {
             throw new UnauthorizedException("Invalid or missing access token");
         }
         Identity identity = identityRepository.findById(identityId)
                 .orElseThrow(() -> new IllegalArgumentException("Identity not found"));
         return IdentityMapper.toDto(identity);
-    }
-
-    private AuthDtos.AuthResponse issueTokens(Identity identity) {
-        String accessToken = generateToken();
-        String refreshTokenValue = generateToken();
-        accessTokenStore.put(accessToken, identity.getId());
-        RefreshToken refreshToken = RefreshToken.builder()
-                .identity(identity)
-                .token(refreshTokenValue)
-                .expiresAt(DateTimeUtil.now().plusDays(30))
-                .revoked(false)
-                .build();
-        refreshTokenRepository.save(refreshToken);
-        return new AuthDtos.AuthResponse(accessToken, refreshTokenValue, IdentityMapper.toDto(identity));
     }
 
 
@@ -254,11 +233,44 @@ public class AuthService {
         }
     }
 
-    private String generateToken() {
-        return UUID.randomUUID().toString();
-    }
 
     private String generateOtpCode() {
         return String.format("%06d", (int) (Math.random() * 1000000));
+    }
+
+
+    private  RegisterResponse issueTokensAndReturn(Identity identity,String role,String name,String message){
+        DeviceSession deviceSession =  DeviceSession.builder().identity(identity)
+                .deviceId("dummy_device_id")
+                .deviceName("dummy_device_name")
+                .operatingSystem("dummy_operating_ystem")
+                .browser("dummy_browser")
+                .ipAddress("dummy_ip_address")
+                .lastSeenAt(LocalDateTime.now())
+                .active(true)
+                .build();
+        DeviceSession saveSession =  deviceSessionService.saveSession(deviceSession);
+
+        String accessToken = jwtUtil.generateToken(identity.getEmail(), identity.getId(), "CUSTOMER");
+        String refreshTokenValue = jwtUtil.generateRefreshToken(identity.getEmail());
+        RefreshToken refreshToken = RefreshToken.builder()
+                .identity(identity)
+                .token(refreshTokenValue)
+                .expiresAt(DateTimeUtil.now().plusDays(30))
+                .revoked(false)
+                .deviceSession(saveSession)
+                .build();
+        refreshTokenRepository.save(refreshToken);
+       return RegisterResponse.builder()
+                .uuid(identity.getId())
+                .name(name)
+                .email(identity.getEmail())
+                .phone(identity.getPhone())
+                .role(role)
+                .status(identity.getStatus().name())
+                .accessToken(accessToken)
+                .refreshToken(refreshTokenValue)
+                .message(message)
+                .build();
     }
 }

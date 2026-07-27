@@ -24,4 +24,8 @@ public class RefreshToken extends BaseEntity {
 
     private Boolean revoked = false;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "device_session_id")
+    private DeviceSession deviceSession;
+
 }

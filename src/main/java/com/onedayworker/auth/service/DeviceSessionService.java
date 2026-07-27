@@ -35,9 +35,14 @@ public class DeviceSessionService {
         repository.deleteById(id);
     }
 
+    public DeviceSession saveSession(DeviceSession session) {
+        return repository.save(session);
+    }
+
     @Transactional
     public void deleteAll() {
         repository.deleteAll();
     }
+
 
 }

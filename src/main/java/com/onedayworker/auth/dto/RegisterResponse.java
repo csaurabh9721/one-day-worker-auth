@@ -15,4 +15,6 @@ public class RegisterResponse {
     private String role;
     private String status;
     private String message;
+    private String accessToken;
+    private String refreshToken;
 }

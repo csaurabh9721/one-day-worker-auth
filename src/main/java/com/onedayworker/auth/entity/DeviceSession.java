@@ -31,4 +31,9 @@ public class DeviceSession extends BaseEntity {
 
     private Boolean active = true;
 
+    @OneToOne(mappedBy = "deviceSession",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private RefreshToken refreshToken;
+
 }
