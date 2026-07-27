@@ -2,6 +2,7 @@ package com.onedayworker.auth.controller;
 
 import com.onedayworker.auth.dto.AuthDtos;
 import com.onedayworker.auth.service.OtpService;
+import com.onedayworker.auth.util.APIBaseRoute;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/auth/otp")
+@RequestMapping(APIBaseRoute.API_VERSION +"/otp")
 @RequiredArgsConstructor
 public class OtpController {
 

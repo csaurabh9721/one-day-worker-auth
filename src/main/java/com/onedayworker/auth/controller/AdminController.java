@@ -6,6 +6,7 @@ import com.onedayworker.auth.dto.IdentityRoleDto;
 import com.onedayworker.auth.service.DeviceSessionService;
 import com.onedayworker.auth.service.IdentityRoleService;
 import com.onedayworker.auth.service.IdentityService;
+import com.onedayworker.auth.util.APIBaseRoute;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/admin")
+@RequestMapping( APIBaseRoute.API_VERSION + "/admin")
 @RequiredArgsConstructor
 public class AdminController {
 

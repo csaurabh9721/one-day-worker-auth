@@ -2,7 +2,11 @@ package com.onedayworker.auth.controller;
 
 import com.onedayworker.auth.dto.AuthDtos;
 import com.onedayworker.auth.dto.IdentityDto;
+import com.onedayworker.auth.dto.RegisterRequestDto;
+import com.onedayworker.auth.dto.RegisterResponse;
 import com.onedayworker.auth.service.AuthService;
+import com.onedayworker.auth.util.APIBaseRoute;
+import com.onedayworker.auth.util.enums.RoleType;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,15 +18,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping(APIBaseRoute.API_VERSION +"/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthDtos.AuthResponse> register(@RequestBody AuthDtos.RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+    @PostMapping("/registerCustomer")
+    public ResponseEntity<RegisterResponse> registerCustomer(@RequestBody RegisterRequestDto request) {
+        return ResponseEntity.ok(authService.register(request, RoleType.CUSTOMER));
+    }
+    @PostMapping("/registerWorker")
+    public ResponseEntity<RegisterResponse> registerWorker(@RequestBody RegisterRequestDto request) {
+        return ResponseEntity.ok(authService.register(request, RoleType.WORKER));
     }
 
     @PostMapping("/login")

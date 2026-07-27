@@ -1,7 +1,6 @@
 package com.onedayworker.auth.service;
 
-import com.onedayworker.auth.dto.AuthDtos;
-import com.onedayworker.auth.dto.IdentityDto;
+import com.onedayworker.auth.dto.*;
 import com.onedayworker.auth.entity.Identity;
 import com.onedayworker.auth.entity.Otp;
 import com.onedayworker.auth.entity.RefreshToken;
@@ -34,35 +33,54 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final OtpRepository otpRepository;
     private final IdentityRoleService identityRoleService;
+    private final CustomerFeignClient customerFeignClient;
 
 
     private final Map<String, UUID> accessTokenStore = new ConcurrentHashMap<>();
 
     @Transactional
-    public AuthDtos.AuthResponse register(AuthDtos.RegisterRequest request) {
-        validatePassword(request.password());
-        if (!ValidationUtil.isBlank(request.email()) && identityRepository.existsByEmail(request.email().trim().toLowerCase())) {
+    public RegisterResponse register(RegisterRequestDto request, RoleType roleType) {
+        validatePassword(request.getPassword());
+        if (!ValidationUtil.isBlank(request.getEmail()) && identityRepository.existsByEmail(request.getEmail().trim().toLowerCase())) {
             throw new IllegalArgumentException("Email already registered");
         }
-        if (!ValidationUtil.isBlank(request.phone()) && identityRepository.existsByPhone(request.phone().trim())) {
+        if (!ValidationUtil.isBlank(request.getPhone()) && identityRepository.existsByPhone(request.getPhone().trim())) {
             throw new IllegalArgumentException("Phone already registered");
         }
 
         Identity identity = Identity.builder()
-                .email(!ValidationUtil.isBlank(request.email()) ? request.email().trim().toLowerCase() : null)
-                .phone(!ValidationUtil.isBlank(request.phone()) ? request.phone().trim() : null)
-                .password(PasswordUtil.hash(request.password()))
+                .email(!ValidationUtil.isBlank(request.getEmail()) ? request.getEmail().trim().toLowerCase() : null)
+                .phone(!ValidationUtil.isBlank(request.getPhone()) ? request.getPhone().trim() : null)
+                .password(PasswordUtil.hash(request.getPassword()))
                 .status(AccountStatus.ACTIVE)
                 .emailVerified(false)
                 .phoneVerified(false)
                 .failedLoginAttempts(0)
                 .build();
+
         identity = identityRepository.save(identity);
         identityRoleService.assignRole(
                 identity.getId(),
-                request.role()
+                roleType.name()
         );
-        return issueTokens(identity);
+        CustomerRegistrationRequest customerRegistrationRequest = CustomerRegistrationRequest.builder()
+                .identityId(identity.getId())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .phone(request.getPhone())
+                .gender(request.getGender())
+                .dob(request.getDob())
+                .build();
+        CustomerRegistrationResponseDto customerRegistrationResponseDto = customerFeignClient.createCustomer(customerRegistrationRequest);
+        return RegisterResponse.builder()
+                .uuid(identity.getId())
+                .name(customerRegistrationResponseDto.getFirstName() + " " + customerRegistrationResponseDto.getLastName())
+                .email(identity.getEmail())
+                .phone(identity.getPhone())
+                .role(roleType.name())
+                .status(identity.getStatus().name())
+                .message("User registered successfully")
+                .build();
     }
 
     @Transactional

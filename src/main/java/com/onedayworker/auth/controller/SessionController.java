@@ -2,6 +2,7 @@ package com.onedayworker.auth.controller;
 
 import com.onedayworker.auth.dto.DeviceSessionDto;
 import com.onedayworker.auth.service.DeviceSessionService;
+import com.onedayworker.auth.util.APIBaseRoute;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/sessions")
+@RequestMapping(APIBaseRoute.API_VERSION +"/sessions")
 @RequiredArgsConstructor
 public class SessionController {
 
