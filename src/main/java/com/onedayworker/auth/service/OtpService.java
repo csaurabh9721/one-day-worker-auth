@@ -10,14 +10,9 @@ import com.onedayworker.auth.repository.OtpRepository;
 import com.onedayworker.auth.util.DateTimeUtil;
 import com.onedayworker.auth.util.ValidationUtil;
 import com.onedayworker.auth.util.enums.OtpType;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,46 +21,9 @@ public class OtpService {
     private final OtpRepository repository;
     private final IdentityRepository identityRepository;
 
-    @Transactional(readOnly = true)
-    public List<OtpDto> findAll() {
-        return repository.findAll().stream()
-                .map(OtpMapper::toDto)
-                .toList();
-    }
 
-    @Transactional(readOnly = true)
-    public OtpDto findById(UUID id) {
-        return repository.findById(id)
-                .map(OtpMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException("Otp not found: " + id));
-    }
 
-    @Transactional
-    public OtpDto create(OtpDto dto) {
-        Otp entity = OtpMapper.toEntity(dto);
-        return OtpMapper.toDto(repository.save(entity));
-    }
 
-    @Transactional
-    public OtpDto update(UUID id, OtpDto dto) {
-        Otp entity = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Otp not found: " + id));
-        entity.setIdentity(dto.getIdentityId() != null ? buildIdentity(dto.getIdentityId()) : null);
-        entity.setCode(dto.getCode());
-        entity.setType(dto.getType());
-        entity.setAttempts(dto.getAttempts());
-        entity.setUsed(dto.getUsed());
-        entity.setExpiresAt(dto.getExpiresAt());
-        return OtpMapper.toDto(repository.save(entity));
-    }
-
-    @Transactional
-    public void delete(UUID id) {
-        if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Otp not found: " + id);
-        }
-        repository.deleteById(id);
-    }
 
     @Transactional
     public void sendOtp(AuthDtos.OtpSendRequest request) {
@@ -123,9 +81,4 @@ public class OtpService {
         return String.format("%06d", (int) (Math.random() * 1000000));
     }
 
-    private Identity buildIdentity(UUID identityId) {
-        Identity identity = new Identity();
-        identity.setId(identityId);
-        return identity;
-    }
 }

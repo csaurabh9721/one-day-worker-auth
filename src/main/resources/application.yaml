@@ -13,14 +13,23 @@ spring:
       ddl-auto: update
     show-sql: true
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
 server:
-  port: ${SERVER_PORT:8081}
+  port: ${SERVER_PORT:8084}
+
+logging:
+  level:
+    com.zaxxer.hikari: DEBUG
+    org.springframework.boot.autoconfigure.jdbc: DEBUG
+    org.springframework.boot.context.config: DEBUG
 
 eureka:
   client:
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
-      fetch-registry: true
-      register-with-eureka: true
+    fetch-registry: true
+    register-with-eureka: true
   instance:
     prefer-ip-address: true

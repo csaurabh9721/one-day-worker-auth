@@ -33,35 +33,6 @@ public class IdentityService {
                 .orElseThrow(() -> new EntityNotFoundException("Identity not found: " + id));
     }
 
-    @Transactional
-    public IdentityDto create(IdentityDto dto) {
-        Identity entity = IdentityMapper.toEntity(dto);
-        return IdentityMapper.toDto(repository.save(entity));
-    }
-
-    @Transactional
-    public IdentityDto update(UUID id, IdentityDto dto) {
-        Identity entity = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Identity not found: " + id));
-        entity.setEmail(dto.getEmail());
-        entity.setPhone(dto.getPhone());
-        entity.setPassword(dto.getPassword());
-        entity.setStatus(dto.getStatus());
-        entity.setEmailVerified(dto.getEmailVerified());
-        entity.setPhoneVerified(dto.getPhoneVerified());
-        entity.setFailedLoginAttempts(dto.getFailedLoginAttempts());
-        entity.setAccountLockedUntil(dto.getAccountLockedUntil());
-        entity.setLastLoginAt(dto.getLastLoginAt());
-        return IdentityMapper.toDto(repository.save(entity));
-    }
-
-    @Transactional
-    public void delete(UUID id) {
-        if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Identity not found: " + id);
-        }
-        repository.deleteById(id);
-    }
 
     @Transactional
     public IdentityDto block(UUID id) {

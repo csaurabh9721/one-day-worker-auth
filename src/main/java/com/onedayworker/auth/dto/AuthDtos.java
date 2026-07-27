@@ -1,5 +1,7 @@
 package com.onedayworker.auth.dto;
 
+import com.onedayworker.auth.entity.Role;
+
 import java.util.UUID;
 
 public final class AuthDtos {
@@ -7,7 +9,7 @@ public final class AuthDtos {
     private AuthDtos() {
     }
 
-    public record RegisterRequest(String email, String phone, String password) {
+    public record RegisterRequest(String email, String phone, String password, String role) {
     }
 
     public record LoginRequest(String emailOrPhone, String password) {
