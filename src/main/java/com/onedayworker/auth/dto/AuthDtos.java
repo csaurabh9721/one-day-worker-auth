@@ -1,8 +1,6 @@
 package com.onedayworker.auth.dto;
 
-import com.onedayworker.auth.entity.Role;
 
-import java.util.UUID;
 
 public final class AuthDtos {
 
@@ -21,10 +19,10 @@ public final class AuthDtos {
     public record LogoutRequest(String refreshToken) {
     }
 
-    public record LogoutAllRequest(UUID identityId) {
+    public record LogoutAllRequest(Long identityId) {
     }
 
-    public record ChangePasswordRequest(UUID identityId, String currentPassword, String newPassword) {
+    public record ChangePasswordRequest(Long identityId, String currentPassword, String newPassword) {
     }
 
     public record ForgotPasswordRequest(String email, String phone) {
@@ -39,10 +37,10 @@ public final class AuthDtos {
     public record OtpVerifyRequest(String email, String phone, String code) {
     }
 
-    public record AdminIdentityRequest(UUID identityId) {
+    public record AdminIdentityRequest(Long identityId) {
     }
 
-    public record AdminRoleRequest(UUID identityId, String roleName) {
+    public record AdminRoleRequest(Long identityId, String roleName) {
     }
 
     public record AuthResponse(String accessToken, String refreshToken, IdentityDto identity) {

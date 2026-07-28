@@ -37,7 +37,7 @@ spring:
   application:
     name: Auth-Service
   profiles:
-    active: dev
+    active: prod
 
   jpa:
     hibernate:

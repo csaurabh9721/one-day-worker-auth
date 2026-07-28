@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping( APIBaseRoute.API_VERSION + "/admin")
@@ -35,7 +34,7 @@ public class AdminController {
     }
 
     @GetMapping("/identities/{id}")
-    public IdentityDto findIdentityById(@PathVariable UUID id) {
+    public IdentityDto findIdentityById(@PathVariable Long id) {
         return identityService.findById(id);
     }
 

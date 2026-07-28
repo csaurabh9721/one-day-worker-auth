@@ -13,9 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class IdentityRoleService {
@@ -27,7 +24,7 @@ public class IdentityRoleService {
 
 
     @Transactional
-    public IdentityRoleDto assignRole(UUID identityId, String roleName) {
+    public IdentityRoleDto assignRole(Long identityId, String roleName) {
         Identity identity = identityRepository.findById(identityId)
                 .orElseThrow(() -> new EntityNotFoundException("Identity not found: " + identityId));
         Role role = roleRepository.findByName(roleName == null ? null : roleName.trim().toUpperCase())

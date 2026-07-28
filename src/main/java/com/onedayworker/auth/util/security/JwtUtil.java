@@ -1,6 +1,4 @@
 package com.onedayworker.auth.util.security;
-
-
 import com.onedayworker.auth.util.Constants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -8,15 +6,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
-
 import java.util.Date;
-import java.util.UUID;
 
 @Component
 public class JwtUtil {
 
 
-    public String generateToken(String email, UUID employeeId, String role) {
+    public String generateToken(String email, Long employeeId, String role) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("employee_id", employeeId)
@@ -38,8 +34,8 @@ public class JwtUtil {
     public String extractEmail(String token) {
         return getClaims(token).getSubject();
     }
-    public UUID extractEmployeeId(String token) {
-        return getClaims(token).get("employee_id", UUID.class);
+    public Long extractEmployeeId(String token) {
+        return getClaims(token).get("employee_id", Long.class);
     }
 
     public String extractRole(String token) {

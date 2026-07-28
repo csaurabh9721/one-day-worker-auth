@@ -5,7 +5,6 @@ package com.onedayworker.auth.dto;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 
 @Getter
@@ -16,7 +15,7 @@ import java.util.UUID;
 public class CustomerRegistrationRequest {
 
 
-       private    UUID identityId;
+       private    Long identityId;
 
        private   String firstName;
 

@@ -4,8 +4,7 @@ import com.onedayworker.auth.entity.IdentityRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
 
 @Repository
-public interface IdentityRoleRepository extends JpaRepository<IdentityRole, UUID> {
+public interface IdentityRoleRepository extends JpaRepository<IdentityRole, Long> {
 }

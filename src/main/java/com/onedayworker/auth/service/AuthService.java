@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -179,7 +178,7 @@ public class AuthService {
 
     public IdentityDto me(HttpServletRequest request, String authorizationHeader) {
         String accessToken = extractAccessToken(request, authorizationHeader);
-        UUID identityId = SecurityUtil.getCurrentUserId();
+        Long identityId = SecurityUtil.getCurrentUserId();
         if (identityId == null) {
             throw new UnauthorizedException("Invalid or missing access token");
         }
@@ -262,7 +261,7 @@ public class AuthService {
                 .build();
         refreshTokenRepository.save(refreshToken);
        return RegisterResponse.builder()
-                .uuid(identity.getId())
+                .id(identity.getId())
                 .name(name)
                 .email(identity.getEmail())
                 .phone(identity.getPhone())

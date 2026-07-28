@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +26,7 @@ public class IdentityService {
     }
 
     @Transactional(readOnly = true)
-    public IdentityDto findById(UUID id) {
+    public IdentityDto findById(Long id) {
         return repository.findById(id)
                 .map(IdentityMapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException("Identity not found: " + id));
@@ -35,7 +34,7 @@ public class IdentityService {
 
 
     @Transactional
-    public IdentityDto block(UUID id) {
+    public IdentityDto block(Long id) {
         Identity entity = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Identity not found: " + id));
         entity.setStatus(AccountStatus.BLOCKED);
@@ -43,7 +42,7 @@ public class IdentityService {
     }
 
     @Transactional
-    public IdentityDto unblock(UUID id) {
+    public IdentityDto unblock(Long id) {
         Identity entity = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Identity not found: " + id));
         entity.setStatus(AccountStatus.ACTIVE);

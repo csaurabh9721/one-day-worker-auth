@@ -4,13 +4,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class DeviceSessionDto extends BaseEntityDto {
 
-    private UUID identityId;
+    private Long identityId;
     private String deviceId;
     private String deviceName;
     private String operatingSystem;

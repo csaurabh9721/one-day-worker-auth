@@ -2,7 +2,6 @@ package com.onedayworker.auth.service;
 
 import com.onedayworker.auth.dto.DeviceSessionDto;
 import com.onedayworker.auth.entity.DeviceSession;
-import com.onedayworker.auth.entity.Identity;
 import com.onedayworker.auth.mapper.DeviceSessionMapper;
 import com.onedayworker.auth.repository.DeviceSessionRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +26,7 @@ public class DeviceSessionService {
 
 
     @Transactional
-    public void delete(UUID id) {
+    public void delete(Long id) {
         if (!repository.existsById(id)) {
             throw new EntityNotFoundException("DeviceSession not found: " + id);
         }

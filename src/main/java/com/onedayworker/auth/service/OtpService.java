@@ -1,10 +1,8 @@
 package com.onedayworker.auth.service;
 
 import com.onedayworker.auth.dto.AuthDtos;
-import com.onedayworker.auth.dto.OtpDto;
 import com.onedayworker.auth.entity.Identity;
 import com.onedayworker.auth.entity.Otp;
-import com.onedayworker.auth.mapper.OtpMapper;
 import com.onedayworker.auth.repository.IdentityRepository;
 import com.onedayworker.auth.repository.OtpRepository;
 import com.onedayworker.auth.util.DateTimeUtil;

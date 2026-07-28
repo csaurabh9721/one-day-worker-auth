@@ -1,6 +1,5 @@
 package com.onedayworker.auth.dto;
 import lombok.*;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -8,7 +7,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class RegisterResponse {
-    private UUID uuid;
+    private Long id;
     private String email;
     private String name;
     private String phone;
