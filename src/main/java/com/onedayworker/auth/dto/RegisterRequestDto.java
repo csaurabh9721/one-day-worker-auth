@@ -12,9 +12,6 @@ import java.time.LocalDate;
 public class RegisterRequestDto {
 
     @NotNull
-    private String email;
-
-    @NotNull
     private String phone;
 
     @NotNull
@@ -25,11 +22,4 @@ public class RegisterRequestDto {
 
     @NotNull
     private String lastName;
-
-    @NotNull
-    private String gender;
-
-    @NotNull
-    private LocalDate dob;
-
 }

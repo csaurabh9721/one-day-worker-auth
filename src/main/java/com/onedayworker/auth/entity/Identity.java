@@ -24,7 +24,7 @@ public class Identity extends BaseEntity {
     @Column(length = 100)
     private String email;
 
-    @Column(length = 20)
+    @Column(length = 20,nullable = false)
     private String phone;
 
     @Column(nullable = false)

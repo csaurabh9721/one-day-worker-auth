@@ -42,7 +42,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     || uri.equals("/authApi/v1/auth/registerWorker")
                     || uri.equals("/authApi/v1/auth/refresh")
                     || uri.equals("/authApi/v1/auth/forgot-password")
-                    || uri.equals("/authApi/v1/auth/reset-password")
                     || uri.equals("/authApi/v1/otp/send")
                     || uri.equals("/authApi/v1/otp/verify");
         }

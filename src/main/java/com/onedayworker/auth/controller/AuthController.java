@@ -74,8 +74,7 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<IdentityDto> me(HttpServletRequest request,
-                                          @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
-        return ResponseEntity.ok(authService.me(request, authorizationHeader));
+    public ResponseEntity<IdentityDto> me() {
+        return ResponseEntity.ok(authService.me());
     }
 }

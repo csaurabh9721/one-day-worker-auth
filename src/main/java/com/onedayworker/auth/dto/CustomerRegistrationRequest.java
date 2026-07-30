@@ -23,9 +23,6 @@ public class CustomerRegistrationRequest {
 
        private   String phone;
 
-       private   String gender;
-
-       private   LocalDate dob;
 
 
 }

@@ -41,15 +41,12 @@ public class AuthService {
     @Transactional
     public RegisterResponse register(RegisterRequestDto request, RoleType roleType) {
         validatePassword(request.getPassword());
-        if (!ValidationUtil.isBlank(request.getEmail()) && identityRepository.existsByEmail(request.getEmail().trim().toLowerCase())) {
-            throw new IllegalArgumentException("Email already registered");
-        }
         if (!ValidationUtil.isBlank(request.getPhone()) && identityRepository.existsByPhone(request.getPhone().trim())) {
             throw new IllegalArgumentException("Phone already registered");
         }
 
         Identity identity = Identity.builder()
-                .email(!ValidationUtil.isBlank(request.getEmail()) ? request.getEmail().trim().toLowerCase() : null)
+                .email(null)
                 .phone(!ValidationUtil.isBlank(request.getPhone()) ? request.getPhone().trim() : null)
                 .password(PasswordUtil.hash(request.getPassword()))
                 .status(AccountStatus.ACTIVE)
@@ -68,8 +65,6 @@ public class AuthService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .phone(request.getPhone())
-                .gender(request.getGender())
-                .dob(request.getDob())
                 .build();
         CustomerRegistrationResponseDto customerRegistrationResponseDto = customerFeignClient.createCustomer(customerRegistrationRequest);
 
@@ -176,8 +171,7 @@ public class AuthService {
         otpRepository.save(otp);
     }
 
-    public IdentityDto me(HttpServletRequest request, String authorizationHeader) {
-        String accessToken = extractAccessToken(request, authorizationHeader);
+    public IdentityDto me() {
         Long identityId = SecurityUtil.getCurrentUserId();
         if (identityId == null) {
             throw new UnauthorizedException("Invalid or missing access token");
