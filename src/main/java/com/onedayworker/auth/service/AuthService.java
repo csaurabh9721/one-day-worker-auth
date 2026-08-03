@@ -34,6 +34,7 @@ public class AuthService {
     private final OtpRepository otpRepository;
     private final IdentityRoleService identityRoleService;
     private final CustomerFeignClient customerFeignClient;
+    private final WorkerFeignClient workerFeignClient;
     private final JwtUtil jwtUtil;
     private final DeviceSessionService deviceSessionService;
 
@@ -60,16 +61,22 @@ public class AuthService {
                 identity.getId(),
                 roleType.name()
         );
-        CustomerRegistrationRequest customerRegistrationRequest = CustomerRegistrationRequest.builder()
+
+        CustomerRegistrationRequest registrationRequest = CustomerRegistrationRequest.builder()
                 .identityId(identity.getId())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .phone(request.getPhone())
                 .build();
-        CustomerRegistrationResponseDto customerRegistrationResponseDto = customerFeignClient.createCustomer(customerRegistrationRequest);
-
-
-        return issueTokensAndReturn(identity,roleType.name(),customerRegistrationResponseDto.getFirstName() + " " + customerRegistrationResponseDto.getLastName(), "User registered successfully");
+        String name = "";
+        if (roleType == RoleType.WORKER) {
+            WorkerResponse workerResponse = workerFeignClient.createWorker(registrationRequest);
+            name = workerResponse.firstName() + " " + workerResponse.lastName();
+        }else  if(roleType == RoleType.CUSTOMER) {
+            CustomerRegistrationResponseDto customerRegistrationResponseDto = customerFeignClient.createCustomer(registrationRequest);
+            name = customerRegistrationResponseDto.getFirstName() + " " + customerRegistrationResponseDto.getLastName();
+        }
+        return issueTokensAndReturn(identity,roleType.name(),name, "User registered successfully");
     }
 
     @Transactional
