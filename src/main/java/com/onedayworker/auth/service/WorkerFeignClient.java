@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
         name = "Worker-Service"
 )
 public interface WorkerFeignClient {
-    @PostMapping("/workerService/api/v1/workers")
+    @PostMapping("/api/v1/workers")
     WorkerResponse createWorker(
             @RequestBody CustomerRegistrationRequest request
     );
